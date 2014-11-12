@@ -1,0 +1,51 @@
+heat_template_version: 2013-05-23
+
+description: A simple template which creates two tenant networks and launches VMs on tenant networks
+
+parameters:
+
+    tenant_private_network:
+        type: string
+        description :  Tenant Private Subnet
+    tenant_public_network:
+        type: string
+        description : Tenant Public Subnet
+
+resources:
+
+    private-network:
+        type: OS::Neutron::Net
+        properties: {name: tenant_private_network}
+    private-subnet:
+        type: OS::Neutron::Subnet
+        properties:
+            name : tenant_private_subnet
+            network_id: {Ref: private-network}
+            cidr: { get_param: tenant_private_network }
+            ip_version: 4
+    public-network:
+        type: OS::Neutron::Net
+        properties: {name: tenant_public_network}
+    public-subnet:
+        type: OS::Neutron::Subnet
+        properties:
+            name : tenant_public_subnet
+            network_id: {Ref: public-network}
+            cidr: { get_param: tenant_public_network }
+            ip_version: 4
+    instance1:
+        type: OS::Nova::Server
+        properties:
+            name : private-vm
+            image: 9cbb429b-a082-4bb4-9306-474e4e9fd722
+            flavor: desktop-flavor
+            networks: [{"network":{Ref: private-network }}]
+    instance2:
+        type: OS::Nova::Server
+        properties:
+            name : public-vm
+            image: 74cb95a7-5cb4-4ceb-bdc5-6b6c5fc802ca
+            flavor: server-flavor
+            networks: [{"network":{Ref: public-network}}]
+
+

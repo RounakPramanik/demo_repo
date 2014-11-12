@@ -1,0 +1,19 @@
+heat_template_version: 2013-05-23
+
+description: A simple template which creates a service instance on a tenant
+
+resources:
+
+
+    service-instance:
+        type: OS::Neutron::ServiceInstance
+        properties:
+            name: ServiceInstance
+            service_type_id:  f33ea45e-af31-490b-bcec-c7c482d7dbb5
+            service_table_id: 'empty'
+            mgmt_address: 'empty'
+            mgmt_driver: netconf
+            service_context: [{'network_id': 055bf65e-5225-4c5b-98f2-cc14ea2ae546},{'network_id': 491d50d3-da02-4836-90bb-d3f723764fce}]
+            device: 6e29c62a-3107-4bea-8c55-489cdb4c7d02
+            tenant_id: 4cdba78764b648669f2ede7f92fb9581
+

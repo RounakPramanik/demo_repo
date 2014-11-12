@@ -1,0 +1,72 @@
+heat_template_version: 2013-05-23
+
+description: A simple template which creates a device template and a device
+
+parameters:
+    dummy_one_network:
+        type: string
+        description : Source Subnet
+    dummy_two_network:
+        type: string
+        description : Destination Subnet
+    mgmt:
+        type: string
+        description : management Subnet
+    
+resources:
+
+    network_m:
+        type: OS::Neutron::Net
+        properties: {name: management_network}
+   
+    subnet_m:
+        type: OS::Neutron::Subnet
+        properties:
+            name : management_subnet
+            network_id: {Ref: network_m}
+            cidr: { get_param: mgmt }
+            ip_version: 4
+   
+    network_s:
+        type: OS::Neutron::Net
+        properties: {name: dummy_one_network}
+
+    subnet_s:
+        type: OS::Neutron::Subnet
+        properties:
+            name : dummy_one_network_subnet
+            network_id: {Ref: network_s}
+            cidr: { get_param: dummy_one_network }
+            ip_version: 4    
+    
+    network_d:
+        type: OS::Neutron::Net
+        properties: {name: dummy_two_network}
+    
+    subnet_d:
+        type: OS::Neutron::Subnet
+        properties:
+            name : dummy_two_network_subnet
+            network_id: {Ref: network_d}
+            cidr: { get_param: dummy_two_network }
+            ip_version: 4
+    
+    device-template:
+        type: OS::Neutron::DeviceTemplate
+        properties:
+            name: DeviceTemplate 
+            description: creates a device template
+            service_types: ['firewall']
+            device_driver: nova
+            mgmt_driver: netconf
+            attributes: {'name':'device-vm','image':'5f617263-583c-4bca-b374-d12019e20f77','flavor':'99'}
+
+    device:
+        type: OS::Neutron::Device
+        properties:
+            template_id: {Ref: device-template} 
+            username : root
+            password : root123
+            interfaces : '3'
+            service_contexts: [{'network_id': {get_attr: [subnet_m, network_id]},'role':'mgmt'},{'network_id': {get_attr: [subnet_s, network_id]}},{'network_id':  {get_attr: [subnet_d, network_id]}}]
+
